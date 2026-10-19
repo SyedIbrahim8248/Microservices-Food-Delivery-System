@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relay Eats – Microservices Food Delivery</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F1F5F0;--ink:#12372A;--mut:#5B7267;--card:#fff;--line:#D5E0D8;--hot:#D7263D;--sun:#F2A900;--ok:#1E8E5A}
+*{box-sizing:border-box;margin:0}
+body{font-family:'Bricolage Grotesque',system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+button,input,select{font:inherit}button{cursor:pointer;border:0}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+header.top{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;background:var(--ink);color:#fff}
+header.top h1{font-size:1.5rem;font-weight:800;letter-spacing:-.02em}header.top span{color:var(--sun)}
+.who{display:flex;gap:10px;align-items:center}
+.btn{background:var(--hot);color:#fff;padding:10px 18px;border-radius:8px;font-weight:600}
+.btn.alt{background:transparent;border:1.5px solid currentColor;color:inherit;padding:6px 12px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;padding:20px 24px;max-width:1350px;margin:auto}
+@media(max-width:950px){.wrap{grid-template-columns:1fr;padding:14px}}
+.tabs,.chips,.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tab,.chip{padding:7px 15px;border-radius:99px;background:transparent;border:1.5px solid var(--line);color:var(--mut);font-weight:600}
+.tab.on,.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+h2{font-size:1.6rem;font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+input,select{padding:10px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);width:100%}
+.bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}.bar input{flex:1;min-width:180px}.bar select{width:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.rest{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;cursor:pointer;position:relative}
+.rest:hover{border-color:var(--ink)}
+.rest .em{font-size:2.5rem}.rest b{display:block;font-size:1.1rem;margin-top:4px}.rest small{color:var(--mut);display:block}
+.heart{position:absolute;right:10px;top:10px;background:none;font-size:1.4rem;color:var(--hot)}
+.menu{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:18px}
+@media(max-width:760px){.menu{grid-template-columns:1fr}}
+.item{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:8px}
+.item .em{font-size:1.9rem}.item div{flex:1}.item small{color:var(--mut)}
+.vg{display:inline-block;width:11px;height:11px;border:2px solid var(--ok);border-radius:2px;margin-right:6px;position:relative}
+.vg:after{content:"";position:absolute;inset:2px;background:var(--ok);border-radius:50%}.vg.n{border-color:var(--hot)}.vg.n:after{background:var(--hot)}
+.add{background:var(--ink);color:#fff;border-radius:8px;padding:8px 14px;font-weight:600}
+.cart{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:14px;align-self:start;position:sticky;top:12px;display:grid;gap:8px}
+.line,.sumr{display:flex;justify-content:space-between;align-items:center;font-size:.92rem}
+.line button{background:var(--line);border-radius:6px;width:24px;height:24px;margin:0 4px;font-weight:800}
+.sumr.t{font-weight:800;font-size:1.1rem;border-top:1px dashed var(--line);padding-top:6px}
+.back{background:none;color:var(--mut);font-weight:600;margin-bottom:8px}
+.order{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.oh{display:flex;justify-content:space-between;margin-bottom:6px}.order p{color:var(--mut);font-size:.9rem;margin-bottom:8px}
+.steps{display:flex;gap:6px;margin:10px 0}.step{flex:1;text-align:center;font-size:.78rem;color:var(--mut)}
+.step i{display:block;height:6px;border-radius:3px;background:var(--line);margin-bottom:5px;transition:background .4s}
+.step.done i{background:var(--ok)}.step.done{color:var(--ink);font-weight:600}
+.cancel{color:var(--hot);font-weight:700}
+.star{background:none;font-size:1.5rem;color:var(--line)}.star.on{color:var(--sun)}
+.empty{color:var(--mut);padding:24px 0}
+.form{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;max-width:420px;display:grid;gap:10px}
+aside{background:#0E1F18;color:#cfe3d7;border-radius:14px;padding:16px;height:calc(100vh - 110px);min-height:420px;position:sticky;top:12px;display:flex;flex-direction:column}
+@media(max-width:950px){aside{position:static;height:360px}}
+aside h3{color:#fff}aside p{font-size:.8rem;color:#8aa597;margin:4px 0 10px}
+#log{overflow-y:auto;flex:1;font:.75rem/1.5 ui-monospace,Menlo,Consolas,monospace}
+#log div{padding:3px 0;border-bottom:1px solid #1b3329}.tag{display:inline-block;min-width:96px;font-weight:700}
+.gateway{color:#7FB7FF}.user{color:#C9A7FF}.restaurant{color:#FFB86B}.order{color:#6BE3A5}.notification{color:#FF8FA3}.kafka{color:#F2E26B}
+#toasts{position:fixed;right:16px;bottom:16px;display:grid;gap:8px;z-index:9}
+.toast{background:var(--ink);color:#fff;padding:12px 16px;border-radius:10px;border-left:5px solid var(--sun);max-width:300px;animation:in .3s}
+@keyframes in{from{transform:translateX(30px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.toast{animation:none}}
+</style>
+</head>
+<body>
+<header class="top"><h1>Relay<span>Eats</span></h1><div class="who" id="who"></div></header>
+<div class="wrap">
+  <main id="app"></main>
+  <aside><h3>Live architecture log</h3>
+    <p>Requests go through the API Gateway. Services talk through Kafka-style events.</p>
+    <div id="log" aria-live="polite"></div></aside>
+</div>
+<div id="toasts"></div>
+<script>
+/* ===== Infrastructure ===== */
+const $=s=>document.querySelector(s),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const store={get:(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+const money=n=>'$'+n.toFixed(2);
+function log(svc,msg){const e=document.createElement('div');
+  e.innerHTML=`<span class="tag ${svc}">${new Date().toLocaleTimeString([],{hour12:false})} ${svc}</span> ${msg}`;$('#log').prepend(e)}
+const Bus={subs:{},on(t,f){(this.subs[t]||=[]).push(f)},
+  emit(t,p){log('kafka',`publish <b>${t}</b> #${p.id}`);setTimeout(()=>(this.subs[t]||[]).forEach(f=>f(p)),500)}};
+const Gateway={async call(svc,route,fn){log('gateway',`→ ${svc}-service ${route}`);await sleep(250);const r=fn();log(svc,`200 OK ${route}`);return r}};
+
+/* ===== User Service ===== */
+const UserService={login(name,email){const id=email.toLowerCase(),u=store.get('users',{});
+  u[id]={id,name:u[id]?.name||name,addr:u[id]?.addr||''};store.set('users',u);return u[id]},
+  save(u){const all=store.get('users',{});all[u.id]=u;store.set('users',all);store.set('session',u)}};
+
+/* ===== Restaurant Service: 6 restaurants, 54 dishes (name|price|emoji|v=veg n=non-veg) ===== */
+const D=[
+['Napoli Slice','Pizza','🍕',4.6,25,2,'Margherita|9|🍕|v;Pepperoni|11|🍕|n;Veggie Supreme|12|🫑|v;BBQ Chicken Pizza|13|🍗|n;Garlic bread|4|🥖|v;Caesar salad|7|🥗|v;Lasagna|13|🍝|n;Tiramisu|6|🍰|v;Cola|2|🥤|v'],
+['Tokyo Bowl','Japanese','🍣',4.7,30,3,'Salmon sushi set|14|🍣|n;Veg maki|9|🥒|v;Chicken ramen|12|🍜|n;Miso ramen|11|🍜|v;Gyoza|6|🥟|n;Edamame|5|🫛|v;Tempura prawns|10|🍤|n;Matcha ice cream|5|🍨|v;Green tea|3|🍵|v'],
+['Spice Route','Indian','🍛',4.5,35,2,'Butter chicken|13|🍛|n;Paneer tikka|11|🧀|v;Dal makhani|9|🍲|v;Chicken biryani|12|🍚|n;Veg biryani|10|🍚|v;Garlic naan|3|🫓|v;Samosa|4|🥟|v;Gulab jamun|4|🍡|v;Mango lassi|4|🥭|v'],
+['Burger Barn','Burgers','🍔',4.4,20,1,'Classic burger|10|🍔|n;Cheese burger|11|🍔|n;Veggie burger|9|🥬|v;Chicken wings|8|🍗|n;Crispy fries|4|🍟|v;Onion rings|5|🧅|v;Chocolate shake|5|🥤|v;Brownie|5|🍫|v;Lemonade|3|🍋|v'],
+['Taco Fiesta','Mexican','🌮',4.3,28,2,'Beef tacos|9|🌮|n;Veg burrito|9|🌯|v;Chicken quesadilla|10|🧀|n;Nachos|7|🧀|v;Guacamole|5|🥑|v;Churros|5|🍩|v;Burrito bowl|11|🥣|n;Horchata|3|🥛|v;Corn salad|5|🌽|v'],
+['Green Garden','Healthy','🥗',4.8,22,2,'Quinoa bowl|11|🥣|v;Avocado toast|8|🥑|v;Grilled chicken salad|12|🥗|n;Falafel wrap|9|🌯|v;Smoothie bowl|8|🍓|v;Tofu stir fry|10|🥦|v;Fruit smoothie|6|🍹|v;Protein shake|6|🥤|v;Hummus plate|7|🫓|v']
+].map((a,i)=>({id:i+1,name:a[0],cuisine:a[1],em:a[2],rating:a[3],eta:a[4],fee:a[5],
+  menu:a[6].split(';').map((s,j)=>{const[p,q,e,v]=s.split('|');return{id:(i+1)*100+j,name:p,price:+q,em:e,veg:v==='v'}})}));
+const RestaurantService={list:()=>D,menu:id=>D.find(r=>r.id===id)};
+Bus.on('order.created',async o=>{log('restaurant',`received order #${o.id} for ${o.restaurantName}`);await sleep(1500);
+  if(OrderService.gone(o.id))return;log('restaurant',`accepted order #${o.id}`);Bus.emit('order.accepted',o);
+  await sleep(4000);if(OrderService.gone(o.id))return;log('restaurant',`order #${o.id} is ready`);Bus.emit('food.ready',o)});
+
+/* ===== Order Service ===== */
+const OrderService={orders:store.get('orders',[]),
+  save(){store.set('orders',this.orders);if(state.user)render()},
+  gone(id){return this.orders.find(x=>x.id===id)?.status===-1},
+  create(u,r,cart,t,extra){const o={id:Math.floor(1000+Math.random()*9000),userId:u.id,restaurantId:r.id,restaurantName:r.name,
+    items:Object.values(cart),...t,...extra,status:0,rating:0};
+    log('order',`payment via ${extra.pay} authorized ${money(t.total)}`);this.orders.unshift(o);this.save();Bus.emit('order.created',o);return o},
+  setStatus(id,s){const o=this.orders.find(x=>x.id===id);if(o&&o.status!==-1){o.status=s;this.save()}},
+  cancel(id){const o=this.orders.find(x=>x.id===id);if(o&&o.status<2){o.status=-1;this.save();log('order',`#${id} CANCELLED, refund started`);Bus.emit('order.cancelled',o)}},
+  rate(id,n){const o=this.orders.find(x=>x.id===id);if(o){o.rating=n;this.save();log('restaurant',`review saved: ${n}★ for ${o.restaurantName}`)}},
+  forUser:uid=>OrderService.orders.filter(o=>o.userId===uid)};
+Bus.on('order.accepted',o=>{if(!OrderService.gone(o.id)){log('order',`#${o.id} → PREPARING`);OrderService.setStatus(o.id,1)}});
+Bus.on('food.ready',async o=>{if(OrderService.gone(o.id))return;log('order',`#${o.id} → OUT FOR DELIVERY`);OrderService.setStatus(o.id,2);
+  await sleep(4000);log('order',`#${o.id} → DELIVERED`);OrderService.setStatus(o.id,3);Bus.emit('order.delivered',o)});
+
+/* ===== Notification Service ===== */
+const MSG={'order.created':o=>`Order #${o.id} placed with ${o.restaurantName}.`,'order.accepted':o=>`${o.restaurantName} accepted order #${o.id}.`,
+  'food.ready':o=>`Order #${o.id} is on its way!`,'order.delivered':o=>`Order #${o.id} delivered. Rate your meal!`,'order.cancelled':o=>`Order #${o.id} cancelled. Refund on its way.`};
+Object.keys(MSG).forEach(t=>Bus.on(t,o=>{log('notification',`push → ${esc(o.userId)}: ${MSG[t](o)}`);
+  const a=store.get('alerts',[]);a.unshift({u:o.userId,m:MSG[t](o),t:new Date().toLocaleTimeString()});store.set('alerts',a.slice(0,40));
+  if(state.user?.id===o.userId)toast(MSG[t](o))}));
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;$('#toasts').append(t);setTimeout(()=>t.remove(),4500)}
+
+/* ===== Frontend ===== */
+const state={user:store.get('session',null),tab:'rest',rest:null,cart:{},f:{q:'',cu:'All',veg:false,fav:false,sort:'rating'},
+  mq:'',cp:'',cpIn:'',tip:0,pay:'Card',addr:''};
+const CP={SAVE10:'10% off',FLAT5:'$5 off orders over $20',FREESHIP:'Free delivery'};
+const favs=()=>store.get('fav:'+state.user.id,[]);
+function calc(){const s=Object.values(state.cart).reduce((a,i)=>a+i.price*i.qty,0);
+  const disc=state.cp==='SAVE10'?s*.1:state.cp==='FLAT5'&&s>=20?5:0,fee=state.cp==='FREESHIP'?0:state.rest.fee,tax=(s-disc)*.05;
+  return{subtotal:s,disc,fee,tax,tip:+state.tip,total:s-disc+fee+tax+ +state.tip}}
+
+function render(){
+  $('#who').innerHTML=state.user?`<span>Hi, ${esc(state.user.name)}</span><button class="btn alt" id="out">Sign out</button>`:'';
+  if(state.user)$('#out').onclick=()=>{state.user=null;store.set('session',null);state.cart={};state.rest=null;render()};
+  const app=$('#app');if(!state.user)return login(app);
+  const n=store.get('alerts',[]).filter(a=>a.u===state.user.id).length;
+  app.innerHTML=`<div class="tabs">${[['rest','Restaurants'],['orders','My orders'],['alerts','Alerts ('+n+')'],['me','Profile']].map(([k,l])=>
+    `<button class="tab ${state.tab===k?'on':''}" data-t="${k}">${l}</button>`).join('')}</div><div id="view"></div>`;
+  app.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{state.tab=b.dataset.t;state.rest=null;render()});
+  const v=$('#view');
+  if(state.tab==='orders')orders(v);else if(state.tab==='alerts')alerts(v);else if(state.tab==='me')profile(v);
+  else if(state.rest)menu(v);else restaurants(v)}
+
+function login(app){app.innerHTML=`<div class="form"><h2>Sign in to order</h2><label>Name<input id="n" autocomplete="name"></label>
+  <label>Email<input id="e" type="email" autocomplete="email"></label><button class="btn" id="go">Continue</button></div>`;
+  $('#go').onclick=async()=>{const n=$('#n').value.trim(),e=$('#e').value.trim();
+    if(!n||!e.includes('@'))return toast('Enter your name and a valid email.');
+    state.user=await Gateway.call('user','POST /auth/login',()=>UserService.login(n,e));store.set('session',state.user);state.addr=state.user.addr;render()}}
+
+async function restaurants(v){
+  const f=state.f;await Gateway.call('restaurant','GET /restaurants',RestaurantService.list);
+  v.innerHTML=`<h2>Hungry? Pick a place</h2><div class="bar"><input id="q" placeholder="Search restaurants or dishes (pizza, ramen, paneer)" value="${esc(f.q)}">
+  <select id="so"><option value="rating">Top rated</option><option value="eta">Fastest</option><option value="fee">Lowest fee</option></select></div>
+  <div class="chips">${['All',...new Set(D.map(r=>r.cuisine))].map(c=>`<button class="chip ${f.cu===c?'on':''}" data-c="${c}">${c}</button>`).join('')}
+  <button class="chip ${f.veg?'on':''}" id="vg">Veg only</button><button class="chip ${f.fav?'on':''}" id="fv">♥ Favorites</button></div><div class="grid" id="list"></div>`;
+  $('#so').value=f.sort;list();
+  $('#q').oninput=e=>{f.q=e.target.value;list()};$('#so').onchange=e=>{f.sort=e.target.value;list()};
+  v.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{f.cu=b.dataset.c;render()});
+  $('#vg').onclick=()=>{f.veg=!f.veg;render()};$('#fv').onclick=()=>{f.fav=!f.fav;render()}}
+function list(){const f=state.f,q=f.q.toLowerCase(),fv=favs();
+  const l=D.filter(r=>(f.cu==='All'||r.cuisine===f.cu)&&(!f.fav||fv.includes(r.id))&&(!q||(r.name+r.cuisine).toLowerCase().includes(q)||r.menu.some(m=>m.name.toLowerCase().includes(q))))
+    .sort((a,b)=>f.sort==='rating'?b.rating-a.rating:a[f.sort]-b[f.sort]);
+  $('#list').innerHTML=l.length?l.map(r=>{const hit=q&&!(r.name+r.cuisine).toLowerCase().includes(q)&&r.menu.find(m=>m.name.toLowerCase().includes(q));
+    return`<div class="rest" data-id="${r.id}"><button class="heart" data-h="${r.id}" aria-label="Favorite">${fv.includes(r.id)?'♥':'♡'}</button>
+    <span class="em">${r.em}</span><b>${r.name}</b><small>${r.cuisine} · ⭐ ${r.rating} · ${r.eta} min</small><small>Delivery ${money(r.fee)} · ${r.menu.length} dishes</small>
+    ${hit?`<small>Has: ${hit.name}</small>`:''}</div>`}).join(''):'<p class="empty">No match. Try another dish or clear the filters.</p>';
+  $('#list').querySelectorAll('.rest').forEach(c=>c.onclick=async e=>{
+    if(e.target.dataset.h){const id=+e.target.dataset.h,a=favs(),n=a.includes(id)?a.filter(x=>x!==id):[...a,id];store.set('fav:'+state.user.id,n);return list()}
+    const id=+c.dataset.id;state.rest=await Gateway.call('restaurant',`GET /restaurants/${id}/menu`,()=>RestaurantService.menu(id));state.cart={};state.mq='';render()})}
+
+function menu(v){const r=state.rest;
+  v.innerHTML=`<button class="back" id="bk">← All restaurants</button><h2>${r.em} ${r.name}</h2>
+  <p class="empty" style="padding:0 0 10px">⭐ ${r.rating} · ${r.eta} min · ${r.cuisine}</p>
+  <div class="bar"><input id="mq" placeholder="Search this menu" value="${esc(state.mq)}"><button class="chip ${state.f.veg?'on':''}" id="vg">Veg only</button></div>
+  <div class="menu"><div id="items"></div><div class="cart" id="cart"></div></div>`;
+  $('#bk').onclick=()=>{state.rest=null;render()};
+  $('#mq').oninput=e=>{state.mq=e.target.value;items()};$('#vg').onclick=e=>{state.f.veg=!state.f.veg;e.target.classList.toggle('on');items()};items();cart()}
+function items(){const r=state.rest,q=state.mq.toLowerCase();
+  const l=r.menu.filter(m=>(!state.f.veg||m.veg)&&m.name.toLowerCase().includes(q));
+  $('#items').innerHTML=l.length?l.map(m=>`<div class="item"><span class="em">${m.em}</span><div><b><i class="vg ${m.veg?'':'n'}"></i>${m.name}</b><small>${money(m.price)}</small></div>
+    <button class="add" data-id="${m.id}">Add</button></div>`).join(''):'<p class="empty">No dishes found. Clear the search or the veg filter.</p>';
+  $('#items').querySelectorAll('.add').forEach(b=>b.onclick=()=>chg(+b.dataset.id,1))}
+function chg(id,d){const m=state.rest.menu.find(x=>x.id===id),c=state.cart[id]||={...m,qty:0};c.qty+=d;if(c.qty<=0)delete state.cart[id];cart()}
+function cart(){const its=Object.values(state.cart),el=$('#cart');
+  if(!its.length){el.innerHTML='<h3>Your cart</h3><p class="empty" style="padding:8px 0">Add something tasty.</p>';return}
+  const t=calc();
+  el.innerHTML=`<h3>Your cart</h3>${its.map(i=>`<div class="line"><span>${i.name}</span><span><button data-d="-1" data-id="${i.id}" aria-label="Remove one">−</button>${i.qty}<button data-d="1" data-id="${i.id}" aria-label="Add one">+</button></span></div>`).join('')}
+  <div class="row" style="margin:0"><input id="cp" placeholder="Coupon: SAVE10, FLAT5, FREESHIP" value="${esc(state.cpIn)}" style="flex:1"><button class="add" id="ap">Apply</button></div>
+  ${state.cp?`<small style="color:var(--ok)">${state.cp}: ${CP[state.cp]}</small>`:''}
+  <select id="tip">${[0,2,5].map(x=>`<option value="${x}" ${state.tip==x?'selected':''}>Tip ${money(x)}</option>`).join('')}</select>
+  <select id="pay">${['Card','UPI','Cash on delivery'].map(x=>`<option ${state.pay===x?'selected':''}>${x}</option>`).join('')}</select>
+  <input id="ad" placeholder="Delivery address" value="${esc(state.addr)}">
+  <div class="sumr"><span>Subtotal</span><span>${money(t.subtotal)}</span></div>
+  ${t.disc?`<div class="sumr"><span>Discount</span><span>−${money(t.disc)}</span></div>`:''}
+  <div class="sumr"><span>Delivery</span><span>${money(t.fee)}</span></div><div class="sumr"><span>Tax (5%)</span><span>${money(t.tax)}</span></div>
+  ${t.tip?`<div class="sumr"><span>Tip</span><span>${money(t.tip)}</span></div>`:''}
+  <div class="sumr t"><span>Total</span><span>${money(t.total)}</span></div><button class="btn" id="place">Place order</button>`;
+  el.querySelectorAll('.line button').forEach(b=>b.onclick=()=>chg(+b.dataset.id,+b.dataset.d));
+  $('#cp').oninput=e=>state.cpIn=e.target.value;
+  $('#ap').onclick=()=>{const c=state.cpIn.trim().toUpperCase();if(!c){state.cp='';return cart()}
+    if(!CP[c])return toast('Coupon not found. Try SAVE10, FLAT5 or FREESHIP.');state.cp=c;toast(`${c} applied: ${CP[c]}`);cart()};
+  $('#tip').onchange=e=>{state.tip=+e.target.value;cart()};$('#pay').onchange=e=>{state.pay=e.target.value};$('#ad').oninput=e=>state.addr=e.target.value;
+  $('#place').onclick=async()=>{if(!state.addr.trim())return toast('Enter a delivery address to continue.');
+    state.user.addr=state.addr;UserService.save(state.user);const t=calc();
+    await Gateway.call('order','POST /orders',()=>OrderService.create(state.user,state.rest,state.cart,t,{addr:state.addr,pay:state.pay,coupon:state.cp}));
+    state.cart={};state.cp='';state.cpIn='';state.tip=0;state.rest=null;state.tab='orders';render()}}
+
+const STEPS=['Placed','Preparing','On the way','Delivered'];
+function orders(v){const l=OrderService.forUser(state.user.id);
+  v.innerHTML='<h2>My orders</h2>'+(l.length?l.map(o=>`<div class="order"><div class="oh"><b>#${o.id} · ${o.restaurantName}</b><b>${money(o.total)}</b></div>
+    <p>${o.items.map(i=>i.qty+'× '+i.name).join(', ')}<br>${o.pay}${o.coupon?' · coupon '+o.coupon:''} · ${esc(o.addr)}</p>
+    ${o.status===-1?'<b class="cancel">Cancelled · refund started</b>':`<div class="steps">${STEPS.map((s,i)=>`<div class="step ${i<=o.status?'done':''}"><i></i>${s}</div>`).join('')}</div>`}
+    <div class="row" style="margin:0">${o.status>=0&&o.status<2?`<button class="btn alt cancel" data-a="c" data-id="${o.id}">Cancel order</button>`:''}
+    ${o.status===3?`<span>${[1,2,3,4,5].map(n=>`<button class="star ${n<=o.rating?'on':''}" data-a="r" data-id="${o.id}" data-n="${n}" aria-label="${n} stars">★</button>`).join('')}</span>`:''}
+    <button class="btn alt" data-a="re" data-id="${o.id}">Reorder</button></div></div>`).join(''):'<p class="empty">No orders yet. Pick a restaurant and place your first one.</p>');
+  v.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{const id=+b.dataset.id,a=b.dataset.a;
+    if(a==='c')OrderService.cancel(id);else if(a==='r')OrderService.rate(id,+b.dataset.n);
+    else{const o=OrderService.orders.find(x=>x.id===id);state.rest=RestaurantService.menu(o.restaurantId);state.cart={};o.items.forEach(i=>state.cart[i.id]={...i});state.tab='rest';render()}})}
+function alerts(v){const l=store.get('alerts',[]).filter(a=>a.u===state.user.id);
+  v.innerHTML='<h2>Alerts</h2>'+(l.length?l.map(a=>`<div class="item"><div>${a.m}<br><small>${a.t}</small></div></div>`).join(''):'<p class="empty">No alerts yet. Order updates show up here.</p>')}
+function profile(v){v.innerHTML=`<div class="form"><h2>Your profile</h2><label>Name<input id="pn" value="${esc(state.user.name)}"></label>
+  <label>Email<input value="${esc(state.user.id)}" disabled></label><label>Saved address<input id="pa" value="${esc(state.user.addr||'')}"></label>
+  <small>Favorites: ${favs().length} · Orders: ${OrderService.forUser(state.user.id).length}</small><button class="btn" id="sv">Save changes</button></div>`;
+  $('#sv').onclick=async()=>{await Gateway.call('user','PUT /users/me',()=>{state.user.name=$('#pn').value.trim()||state.user.name;state.user.addr=$('#pa').value.trim();state.addr=state.user.addr;UserService.save(state.user)});toast('Profile saved.');render()}}
+
+log('gateway','API Gateway started. Services: user, restaurant, order, notification');
+render();
+</script>
+</body>
+</html>
